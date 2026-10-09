@@ -39,10 +39,11 @@ Hệ thống được thiết kế theo đúng nguyên tắc **Kiến trúc hư�
 
 | Tên Service | Port | Loại Project | Vai trò |
 |---|---|---|---|
-| **WebClient** | `5000` | ASP.NET Core MVC | Giao diện người dùng cho Sinh viên, Đề tài và Đăng ký |
+| **WebClient** | `5000` | ASP.NET Core MVC | Giao diện người dùng (Đăng nhập/Đăng ký + Sinh viên/Đề tài/Đăng ký) |
 | **SinhVienService**| `5001` | ASP.NET Core Web API | CRUD Sinh viên, kiểm tra ràng buộc trước khi xóa |
 | **DeTaiService** | `5002` | ASP.NET Core Web API | CRUD Đề tài, kiểm tra ràng buộc trước khi xóa |
 | **DangKyService** | `5003` | ASP.NET Core Web API | Điều phối nghiệp vụ đăng ký đồ án, Typed HttpClient + Polly |
+| **AuthService** | `5004` | ASP.NET Core Web API | Xác thực & phân quyền: Đăng ký, Đăng nhập, cấp **JWT** |
 
 ---
 
@@ -74,6 +75,61 @@ Hệ thống được thiết kế theo đúng nguyên tắc **Kiến trúc hư�
 - `PUT /api/dangky/{id}`: Cập nhật trạng thái đăng ký (HTTP 204, 400, 404)
 - `DELETE /api/dangky/{id}`: Hủy đăng ký đề tài (HTTP 204, 404)
 
+### AuthService (Port 5004)
+- `GET /health`: Kiểm tra trạng thái hoạt động
+- `POST /api/auth/register`: Đăng ký tài khoản mới, có chọn vai trò (HTTP `201`, `400`, `409` nếu trùng username)
+- `POST /api/auth/login`: Đăng nhập, trả về **JWT** (HTTP `200`, `400`, `401` nếu sai thông tin)
+
+**Body đăng ký:**
+```json
+{
+  "username": "sinhvien2",
+  "password": "123456",
+  "fullName": "Trần Thị B",
+  "role": "SinhVien",
+  "referenceCode": "SV002"
+}
+```
+- `role`: chỉ nhận `"GiaoVien"` hoặc `"SinhVien"` (giá trị khác sẽ tự động gán về `"SinhVien"`).
+- `referenceCode`: **Mã Giảng viên / Mã Sinh viên** được liên kết. Sinh viên dùng mã này để tự động điền khi đăng ký đồ án.
+
+**Kết quả đăng nhập / đăng ký:**
+```json
+{
+  "username": "sinhvien1",
+  "fullName": "Nguyễn Văn An",
+  "role": "SinhVien",
+  "referenceCode": "SV001",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+---
+
+## 3b. Phân quyền theo Vai trò (Role-Based Access Control)
+
+| Chức năng | Giáo viên (`GiaoVien`) | Sinh viên (`SinhVien`) |
+|---|:---:|:---:|
+| Quản lý Sinh viên (CRUD) | ✅ Toàn quyền | ❌ Bị chặn (403) |
+| Quản lý Đề tài (CRUD) | ✅ Toàn quyền | ❌ Bị chặn (403) |
+| Đăng ký đồ án | ✅ Đăng ký thay bất kỳ SV nào | ✅ Chỉ đăng ký cho **chính mình** |
+| Xem danh sách đăng ký | ✅ Tất cả | ✅ Chỉ đăng ký của mình |
+| Hủy đăng ký | ✅ | ❌ Bị chặn (403) |
+
+**Cơ chế thực thi (2 lớp):**
+1. **Server-side (bắt buộc)**: `[Authorize(Roles = "GiaoVien")]` trên `SinhVienController`, `DeTaiController` và action `DangKyController.Delete`. Sinh viên cố tình POST trực tiếp (bypass giao diện) vẫn bị chặn.
+2. **Client-side (UX)**: Menu, nút "Hủy ĐK" và ô chọn sinh viên được ẩn/khóa theo vai trò trong `_Layout.cshtml` và các View.
+
+**Luồng xác thực trong kiến trúc SOA:**
+```text
+Browser -> WebClient(5000) --(POST /api/auth/login)--> AuthService(5004)
+         <- JWT + Role + ReferenceCode
+WebClient tạo Cookie phiên đăng nhập (ClaimsPrincipal)
+         -> mọi lần gọi SinhVien/DeTai/DangKy đều đính kèm "Authorization: Bearer <JWT>"
+```
+
+> WebClient **không tự kiểm tra mật khẩu** — việc xác thực hoàn toàn do `AuthService` đảm nhiệm, đúng tinh thần dịch vụ tự chủ của SOA.
+
 ---
 
 ## 4. Các Quy tắc Nghiệp vụ đã Thực thi
@@ -89,7 +145,7 @@ Hệ thống được thiết kế theo đúng nguyên tắc **Kiến trúc hư�
 ## 5. Hướng dẫn Chạy ứng dụng
 
 ### Cách 1: Chạy trực tiếp bằng .NET CLI (Đơn giản nhất để test)
-Mở 4 tab terminal riêng biệt và chạy lần lượt các lệnh:
+Mở **5** tab terminal riêng biệt và chạy lần lượt các lệnh:
 
 ```bash
 # Tab 1: Khởi động SinhVienService (cổng 5001)
@@ -104,7 +160,11 @@ dotnet run --launch-profile http
 cd services/DangKyService
 dotnet run --launch-profile http
 
-# Tab 4: Khởi động WebClient (cổng 5000)
+# Tab 4: Khởi động AuthService (cổng 5004)
+cd services/AuthService
+dotnet run --launch-prfile http
+
+# Tab 5: Khởi động WebClient (cổng 5000)
 cd clients/WebClient
 dotnet run --launch-profile http
 ```
@@ -114,6 +174,18 @@ Mở trình duyệt truy cập:
 - Swagger SinhVien: [http://localhost:5001/swagger](http://localhost:5001/swagger)
 - Swagger DeTai: [http://localhost:5002/swagger](http://localhost:5002/swagger)
 - Swagger DangKy: [http://localhost:5003/swagger](http://localhost:5003/swagger)
+- Swagger Auth: [http://localhost:5004/swagger](http://localhost:5004/swagger)
+
+### Tài khoản demo có sẵn (mật khẩu đều là `123456`)
+
+| Tên đăng nhập | Vai trò | Họ tên | Mã liên kết | Quyền hạn |
+|---|---|---|---|---|
+| `giaovien1` | `GiaoVien` | TS. Trần Văn Hùng | `GV001` | Toàn quyền (Sinh viên, Đề tài, Đăng ký, Hủy ĐK) |
+| `sinhvien1` | `SinhVien` | Nguyễn Văn An | `SV001` | Chỉ đăng ký đồ án cho chính mình |
+
+Bạn cũng có thể tự đăng ký tài khoản mới tại [http://localhost:5000/Account/Register](http://localhost:5000/Account/Register) và chọn vai trò **Giáo viên** hoặc **Sinh viên**.
+
+> **Lưu ý khi chạy sau proxy**: nếu máy có cấu hình `HTTP_PROXY`, hãy thêm `localhost,127.0.0.1` vào biến môi trường `no_proxy` để WebClient gọi được các service nội bộ.
 
 ### Cách 2: Chạy toàn bộ bằng Docker Compose
 Đảm bảo đã cài Docker Desktop, đứng tại thư mục gốc chạy:
@@ -127,6 +199,6 @@ docker-compose up --build
 Dự án đã chuẩn bị sẵn file `requests.http` ở thư mục gốc. 
 Bạn có thể mở trong VS Code (với extension REST Client) hoặc Visual Studio để bấm **Send Request** trực tiếp kiểm tra từng kịch bản nghiệp vụ:
 - Kiểm tra thêm/sửa/xóa sinh viên, đề tài.
-- Kiểm tra trùng lặp khóa chính.
+- Kiểmo tra trùng lặp khóa chính.
 - Kiểm tra đăng ký thành công và đăng ký thất bại do đầy chỗ hoặc trùng sinh viên.
 - Kiểm tra tính năng chặn xóa khi đang có ràng buộc liên dịch vụ.

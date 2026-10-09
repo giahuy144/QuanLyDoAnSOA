@@ -86,4 +86,73 @@ public class DangKyCreateViewModel
 
     public List<SinhVienViewModel> SinhViens { get; set; } = new();
     public List<DeTaiViewModel> DeTais { get; set; } = new();
+
+    // Sinh viên đăng nhập sẽ bị khóa ô chọn sinh viên (chỉ được đăng ký cho chính mình)
+    public bool KhoaChonSinhVien { get; set; }
 }
+
+#region Tài khoản (Authentication)
+
+/// <summary>
+/// Kết quả trả về từ AuthService sau khi đăng nhập / đăng ký thành công.
+/// Tên thuộc tính khớp với AuthResponseDto bên AuthService (JSON camelCase).
+/// </summary>
+public class AuthResponseViewModel
+{
+    public string Username { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;         // "GiaoVien" | "SinhVien"
+    public string? ReferenceCode { get; set; }               // Mã GV hoặc Mã SV liên kết
+    public string Token { get; set; } = string.Empty;        // JWT do AuthService ký
+}
+
+public class LoginViewModel
+{
+    [Required(ErrorMessage = "Tên đăng nhập là bắt buộc")]
+    [Display(Name = "Tên đăng nhập")]
+    public string Username { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
+    [DataType(DataType.Password)]
+    [Display(Name = "Mật khẩu")]
+    public string Password { get; set; } = string.Empty;
+
+    [Display(Name = "Ghi nhớ đăng nhập")]
+    public bool RememberMe { get; set; }
+
+    public string? ReturnUrl { get; set; }
+}
+
+public class RegisterViewModel
+{
+    [Required(ErrorMessage = "Tên đăng nhập là bắt buộc")]
+    [StringLength(50, MinimumLength = 3, ErrorMessage = "Tên đăng nhập từ 3 đến 50 ký tự")]
+    [Display(Name = "Tên đăng nhập")]
+    public string Username { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Họ và tên là bắt buộc")]
+    [StringLength(100, ErrorMessage = "Họ tên tối đa 100 ký tự")]
+    [Display(Name = "Họ và tên")]
+    public string FullName { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
+    [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]
+    [DataType(DataType.Password)]
+    [Display(Name = "Mật khẩu")]
+    public string Password { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Vui lòng xác nhận mật khẩu")]
+    [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Mật khẩu xác nhận không khớp")]
+    [Display(Name = "Xác nhận mật khẩu")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Vui lòng chọn vai trò")]
+    [Display(Name = "Vai trò")]
+    public string Role { get; set; } = "SinhVien";   // "GiaoVien" | "SinhVien"
+
+    [Display(Name = "Mã Giảng viên / Mã Sinh viên (nếu có)")]
+    public string? ReferenceCode { get; set; }
+}
+
+#endregion

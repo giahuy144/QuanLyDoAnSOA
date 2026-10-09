@@ -16,13 +16,27 @@
 
                     <div class="mb-3">
                         <label asp-for="MaSV" class="form-label fw-bold"></label>
-                        <select asp-for="MaSV" class="form-select">
-                            <option value="">-- Chọn sinh viên --</option>
-                            @foreach (var sv in Model.SinhViens)
-                            {
-                                <option value="@sv.MaSV">@sv.MaSV - @sv.HoTen (@sv.Lop)</option>
-                            }
-                        </select>
+
+                        @if (Model.KhoaChonSinhVien)
+                        {
+                            @* Sinh viên: khóa đúng mã của chính mình, chỉ hiển thị (readonly) *@
+                            <input asp-for="MaSV" class="form-control bg-light" readonly />
+                            <div class="form-text text-success">
+                                <i class="bi bi-lock-fill me-1"></i>
+                                Bạn đang đăng ký với tư cách sinh viên <strong>@Model.MaSV</strong>. Không thể đăng ký thay người khác.
+                            </div>
+                        }
+                        else
+                        {
+                            @* Giáo viên: được chọn tự do sinh viên bất kỳ *@
+                            <select asp-for="MaSV" class="form-select">
+                                <option value="">-- Chọn sinh viên --</option>
+                                @foreach (var sv in Model.SinhViens)
+                                {
+                                    <option value="@sv.MaSV">@sv.MaSV - @sv.HoTen (@sv.Lop)</option>
+                                }
+                            </select>
+                        }
                         <span asp-validation-for="MaSV" class="text-danger small"></span>
                     </div>
 

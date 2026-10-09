@@ -1,9 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebClient.Models;
 using WebClient.Services;
 
 namespace WebClient.Controllers;
 
+/// <summary>
+/// Quản lý Đề tài tốt nghiệp: CHỈ GIÁO VIÊN mới được truy cập (CRUD toàn phần).
+/// Sinh viên chỉ được xem danh sách đề tài khi đăng ký (qua DangKyController).
+/// </summary>
+[Authorize(Roles = "GiaoVien")]
 public class DeTaiController : Controller
 {
     private readonly IApiClientService _apiService;

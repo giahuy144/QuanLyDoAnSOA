@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text.Json;
 using WebClient.Models;
 
@@ -10,16 +11,36 @@ public class ApiClientService : IApiClientService
     private readonly ILogger<ApiClientService> _logger;
     private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public ApiClientService(HttpClient httpClient, IConfiguration config, ILogger<ApiClientService> logger)
+    public ApiClientService(HttpClient httpClient, IConfiguration config, ILogger<ApiClientService> logger,
+                            IHttpContextAccessor httpContextAccessor)
     {
         _httpClient = httpClient;
         _config = config;
         _logger = logger;
+
+        // Truyền JWT do AuthService cấp vào mọi request (SOA: token propagation).
+        // Mỗi lần IHttpClientFactory tạo ApiClientService sẽ cấp một HttpClient mới,
+        // nên việc gán DefaultRequestHeaders tại đây là an toàn.
+        var token = httpContextAccessor.HttpContext?.User?.FindFirst("JwtToken")?.Value
+                    ?? httpContextAccessor.HttpContext?.Session.GetString("JwtToken");
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
     }
 
     private string SinhVienUrl => _config["Services:SinhVienService"] ?? "http://localhost:5001";
     private string DeTaiUrl => _config["Services:DeTaiService"] ?? "http://localhost:5002";
     private string DangKyUrl => _config["Services:DangKyService"] ?? "http://localhost:5003";
+    private string AuthUrl => _config["Services:AuthService"] ?? "http://localhost:5004";
+
+    /// <summary>Ghi log khi service trả về mã lỗi, giúp dễ debug khi dữ liệu trống.</summary>
+    private void LogBadResponse(string serviceName, HttpResponseMessage res, string body)
+    {
+        _logger.LogWarning("{Service} trả về {Status}: {Body}",
+            serviceName, (int)res.StatusCode, body.Length > 200 ? body[..200] : body);
+    }
 
     #region SinhVien
     public async Task<List<SinhVienViewModel>> GetSinhViensAsync()
@@ -27,11 +48,12 @@ public class ApiClientService : IApiClientService
         try
         {
             var res = await _httpClient.GetAsync($"{SinhVienUrl}/api/sinhvien");
+            var content = await res.Content.ReadAsStringAsync();
             if (res.IsSuccessStatusCode)
             {
-                var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<List<SinhVienViewModel>>(content, _jsonOptions) ?? new();
             }
+            LogBadResponse("SinhVienService", res, content);
         }
         catch (Exception ex)
         {
@@ -113,11 +135,12 @@ public class ApiClientService : IApiClientService
         try
         {
             var res = await _httpClient.GetAsync($"{DeTaiUrl}/api/detai");
+            var content = await res.Content.ReadAsStringAsync();
             if (res.IsSuccessStatusCode)
             {
-                var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<List<DeTaiViewModel>>(content, _jsonOptions) ?? new();
             }
+            LogBadResponse("DeTaiService", res, content);
         }
         catch (Exception ex)
         {
@@ -199,11 +222,12 @@ public class ApiClientService : IApiClientService
         try
         {
             var res = await _httpClient.GetAsync($"{DangKyUrl}/api/dangky");
+            var content = await res.Content.ReadAsStringAsync();
             if (res.IsSuccessStatusCode)
             {
-                var content = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<List<DangKyViewModel>>(content, _jsonOptions) ?? new();
             }
+            LogBadResponse("DangKyService", res, content);
         }
         catch (Exception ex)
         {
@@ -242,6 +266,68 @@ public class ApiClientService : IApiClientService
         catch (Exception ex)
         {
             return (false, $"Không thể kết nối đến DangKyService: {ex.Message}");
+        }
+    }
+    #endregion
+
+    #region Auth (AuthService - cổng 5004)
+    public async Task<(bool Success, string? ErrorMessage, AuthResponseViewModel? Data)> LoginAsync(LoginViewModel model)
+    {
+        try
+        {
+            var body = new { username = model.Username, password = model.Password };
+            var res = await _httpClient.PostAsJsonAsync($"{AuthUrl}/api/auth/login", body);
+            var content = await res.Content.ReadAsStringAsync();
+
+            if (res.IsSuccessStatusCode)
+            {
+                var data = JsonSerializer.Deserialize<AuthResponseViewModel>(content, _jsonOptions);
+                return (true, null, data);
+            }
+
+            if ((int)res.StatusCode == 401)
+            {
+                return (false, "Sai tên đăng nhập hoặc mật khẩu.", null);
+            }
+            return (false, ParseErrorMessage(content), null);
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Không thể kết nối đến AuthService (cổng 5004): {ex.Message}", null);
+        }
+    }
+
+    public async Task<(bool Success, string? ErrorMessage, AuthResponseViewModel? Data)> RegisterAsync(RegisterViewModel model)
+    {
+        try
+        {
+            var body = new
+            {
+                username = model.Username,
+                password = model.Password,
+                fullName = model.FullName,
+                role = model.Role,
+                referenceCode = model.ReferenceCode
+            };
+
+            var res = await _httpClient.PostAsJsonAsync($"{AuthUrl}/api/auth/register", body);
+            var content = await res.Content.ReadAsStringAsync();
+
+            if (res.IsSuccessStatusCode)
+            {
+                var data = JsonSerializer.Deserialize<AuthResponseViewModel>(content, _jsonOptions);
+                return (true, null, data);
+            }
+
+            if ((int)res.StatusCode == 409)
+            {
+                return (false, "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác.", null);
+            }
+            return (false, ParseErrorMessage(content), null);
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Không thể kết nối đến AuthService (cổng 5004): {ex.Message}", null);
         }
     }
     #endregion

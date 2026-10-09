@@ -94,3 +94,4 @@ d:\SOA\QuanLyDoAnSOA\services\DangKyService\obj\Debug\net8.0\refint\DangKyServic
 d:\SOA\QuanLyDoAnSOA\services\DangKyService\obj\Debug\net8.0\DangKyService.pdb
 d:\SOA\QuanLyDoAnSOA\services\DangKyService\obj\Debug\net8.0\DangKyService.genruntimeconfig.cache
 d:\SOA\QuanLyDoAnSOA\services\DangKyService\obj\Debug\net8.0\ref\DangKyService.dll
+D:\SOA\QuanLyDoAnSOA\services\DangKyService\obj\Debug\net8.0\DangKyService.sourcelink.json

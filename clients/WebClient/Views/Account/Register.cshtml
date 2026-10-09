@@ -1,0 +1,103 @@
+@model WebClient.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng Ký Tài Khoản";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="bi bi-person-plus-fill me-2"></i>Đăng Ký Tài Khoản Mới
+            </div>
+            <div class="card-body">
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-bold"></label>
+                        <input asp-for="FullName" class="form-control" placeholder="Ví dụ: Nguyễn Văn An" autofocus />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label fw-bold"></label>
+                        <input asp-for="Username" class="form-control" placeholder="Tên đăng nhập (3-50 ký tự)" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Password" class="form-label fw-bold"></label>
+                            <input asp-for="Password" class="form-control" placeholder="Tối thiểu 6 ký tự" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label fw-bold"></label>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    @* ---- CHỌN QUYỀN: GIÁO VIÊN HOẶC SINH VIÊN ---- *@
+                    <div class="mb-3">
+                        <label asp-for="Role" class="form-label fw-bold"></label>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check" asp-for="Role" value="SinhVien" id="roleSinhVien" autocomplete="off" checked>
+                                <label class="btn btn-outline-success w-100 py-2" for="roleSinhVien">
+                                    <i class="bi bi-mortarboard-fill d-block fs-3 mb-1"></i>
+                                    <strong>Sinh Viên</strong>
+                                    <div class="small">Chỉ được đăng ký đồ án</div>
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check" asp-for="Role" value="GiaoVien" id="roleGiaoVien" autocomplete="off">
+                                <label class="btn btn-outline-danger w-100 py-2" for="roleGiaoVien">
+                                    <i class="bi bi-person-badge-fill d-block fs-3 mb-1"></i>
+                                    <strong>Giáo Viên</strong>
+                                    <div class="small">Toàn quyền quản lý</div>
+                                </label>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Role" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ReferenceCode" class="form-label fw-bold"></label>
+                        <input asp-for="ReferenceCode" class="form-control" placeholder="Ví dụ: SV001 hoặc GV001 (không bắt buộc)" />
+                        <div class="form-text">
+                            Nếu là sinh viên, nhập đúng <strong>Mã SV</strong> để hệ thống tự động gán khi đăng ký đồ án.
+                        </div>
+                        <span asp-validation-for="ReferenceCode" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-person-plus-fill me-1"></i>Đăng Ký
+                    </button>
+                </form>
+
+                <hr />
+                <p class="text-center mb-0">
+                    Đã có tài khoản?
+                    <a asp-action="Login" class="fw-bold">Đăng nhập</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Đổi placeholder của ô "Mã tham chiếu" theo vai trò được chọn
+        document.querySelectorAll('input[name="Role"]').forEach(function (el) {
+            el.addEventListener('change', function () {
+                var input = document.getElementById('ReferenceCode');
+                input.placeholder = (this.value === 'GiaoVien')
+                    ? 'Ví dụ: GV001 (Mã giảng viên)'
+                    : 'Ví dụ: SV001 (Mã sinh viên)';
+            });
+        });
+    </script>
+}

@@ -50,6 +50,20 @@ services:
     networks:
       - soa-network
 
+  authservice:
+    build:
+      context: .
+      dockerfile: services/AuthService/Dockerfile
+    container_name: authservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - UseInMemoryDatabase=true
+    ports:
+      - "5004:8080"
+    networks:
+      - soa-network
+
   webclient:
     build:
       context: .
@@ -61,12 +75,14 @@ services:
       - Services__SinhVienService=http://sinhvienservice:8080
       - Services__DeTaiService=http://detaiservice:8080
       - Services__DangKyService=http://dangkyservice:8080
+      - Services__AuthService=http://authservice:8080
     ports:
       - "5000:8080"
     depends_on:
       - sinhvienservice
       - detaiservice
       - dangkyservice
+      - authservice
     networks:
       - soa-network
 

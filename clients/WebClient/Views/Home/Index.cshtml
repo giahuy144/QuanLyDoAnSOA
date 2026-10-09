@@ -1,5 +1,36 @@
 @{
     ViewData["Title"] = "Trang Chủ - Quản Lý Đồ Án Tốt Nghiệp";
+    var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+    var isGiaoVien = User?.IsInRole("GiaoVien") ?? false;
+    var hoTen = User?.FindFirst("FullName")?.Value;
+}
+
+@if (!isAuthenticated)
+{
+    <div class="alert alert-primary shadow-sm d-flex align-items-center" role="alert">
+        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+        <div>
+            <strong>Vui lòng đăng nhập để sử dụng hệ thống.</strong>
+            Khi đăng ký bạn có thể chọn vai trò <span class="badge bg-danger">Giáo viên</span> (toàn quyền)
+            hoặc <span class="badge bg-success">Sinh viên</span> (chỉ được đăng ký đồ án).
+            <a asp-controller="Account" asp-action="Login" class="fw-bold ms-1">Đăng nhập</a>
+            &middot;
+            <a asp-controller="Account" asp-action="Register" class="fw-bold">Đăng ký</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert @(isGiaoVien ? "alert-danger" : "alert-success") shadow-sm d-flex align-items-center" role="alert">
+        <i class="bi @(isGiaoVien ? "bi-person-badge-fill" : "bi-mortarboard-fill") fs-4 me-3"></i>
+        <div>
+            Xin chào <strong>@hoTen</strong> &mdash; bạn đang đăng nhập với vai trò
+            <strong>@(isGiaoVien ? "GIÁO VIÊN" : "SINH VIÊN")</strong>.
+            @(isGiaoVien
+                ? "Bạn có toàn quyền quản lý Sinh viên, Đề tài và Đăng ký."
+                : "Bạn chỉ được phép đăng ký đồ án tốt nghiệp cho chính mình.")
+        </div>
+    </div>
 }
 
 <div class="p-5 mb-4 bg-white rounded-3 shadow-sm border">
@@ -23,7 +54,14 @@
                 <p class="card-text text-muted">Cổng hoạt động: <code>http://localhost:5001</code></p>
                 <p class="small text-secondary">Quản lý toàn bộ thông tin hồ sơ sinh viên, lớp, liên hệ. Chịu trách nhiệm kiểm tra toàn vẹn trước khi cho phép xóa hồ sơ.</p>
                 <div class="d-flex gap-2 mt-auto">
-                    <a asp-controller="SinhVien" asp-action="Index" class="btn btn-sm btn-outline-primary">Quản lý Sinh viên</a>
+                    @if (isGiaoVien)
+                    {
+                        <a asp-controller="SinhVien" asp-action="Index" class="btn btn-sm btn-outline-primary">Quản lý Sinh viên</a>
+                    }
+                    else
+                    {
+                        <span class="btn btn-sm btn-outline-secondary disabled"><i class="bi bi-lock-fill me-1"></i>Chỉ Giáo viên</span>
+                    }
                     <a href="http://localhost:5001/swagger" target="_blank" class="btn btn-sm btn-light border"><i class="bi bi-box-arrow-up-right me-1"></i>Swagger</a>
                 </div>
             </div>
@@ -36,7 +74,14 @@
                 <p class="card-text text-muted">Cổng hoạt động: <code>http://localhost:5002</code></p>
                 <p class="small text-secondary">Quản lý kho đề tài tốt nghiệp, giảng viên hướng dẫn và kiểm soát giới hạn số lượng sinh viên tối đa cho từng đề tài.</p>
                 <div class="d-flex gap-2 mt-auto">
-                    <a asp-controller="DeTai" asp-action="Index" class="btn btn-sm btn-outline-success">Quản lý Đề tài</a>
+                    @if (isGiaoVien)
+                    {
+                        <a asp-controller="DeTai" asp-action="Index" class="btn btn-sm btn-outline-success">Quản lý Đề tài</a>
+                    }
+                    else
+                    {
+                        <span class="btn btn-sm btn-outline-secondary disabled"><i class="bi bi-lock-fill me-1"></i>Chỉ Giáo viên</span>
+                    }
                     <a href="http://localhost:5002/swagger" target="_blank" class="btn btn-sm btn-light border"><i class="bi bi-box-arrow-up-right me-1"></i>Swagger</a>
                 </div>
             </div>

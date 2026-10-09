@@ -22,4 +22,8 @@ public interface IApiClientService
     Task<List<DangKyViewModel>> GetDangKysAsync();
     Task<(bool Success, string? ErrorMessage)> CreateDangKyAsync(string maSV, string maDT);
     Task<(bool Success, string? ErrorMessage)> DeleteDangKyAsync(int maDK);
+
+    // Auth APIs (gọi sang AuthService - cổng 5004)
+    Task<(bool Success, string? ErrorMessage, AuthResponseViewModel? Data)> LoginAsync(LoginViewModel model);
+    Task<(bool Success, string? ErrorMessage, AuthResponseViewModel? Data)> RegisterAsync(RegisterViewModel model);
 }

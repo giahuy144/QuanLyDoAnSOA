@@ -88,3 +88,4 @@ d:\SOA\QuanLyDoAnSOA\services\DeTaiService\obj\Debug\net8.0\refint\DeTaiService.
 d:\SOA\QuanLyDoAnSOA\services\DeTaiService\obj\Debug\net8.0\DeTaiService.pdb
 d:\SOA\QuanLyDoAnSOA\services\DeTaiService\obj\Debug\net8.0\DeTaiService.genruntimeconfig.cache
 d:\SOA\QuanLyDoAnSOA\services\DeTaiService\obj\Debug\net8.0\ref\DeTaiService.dll
+D:\SOA\QuanLyDoAnSOA\services\DeTaiService\obj\Debug\net8.0\DeTaiService.sourcelink.json

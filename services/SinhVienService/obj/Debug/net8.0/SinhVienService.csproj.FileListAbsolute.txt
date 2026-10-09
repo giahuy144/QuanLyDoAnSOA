@@ -88,3 +88,4 @@ d:\SOA\QuanLyDoAnSOA\services\SinhVienService\obj\Debug\net8.0\refint\SinhVienSe
 d:\SOA\QuanLyDoAnSOA\services\SinhVienService\obj\Debug\net8.0\SinhVienService.pdb
 d:\SOA\QuanLyDoAnSOA\services\SinhVienService\obj\Debug\net8.0\SinhVienService.genruntimeconfig.cache
 d:\SOA\QuanLyDoAnSOA\services\SinhVienService\obj\Debug\net8.0\ref\SinhVienService.dll
+D:\SOA\QuanLyDoAnSOA\services\SinhVienService\obj\Debug\net8.0\SinhVienService.sourcelink.json

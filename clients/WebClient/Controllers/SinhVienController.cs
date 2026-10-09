@@ -1,9 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebClient.Models;
 using WebClient.Services;
 
 namespace WebClient.Controllers;
 
+/// <summary>
+/// Quản lý hồ sơ Sinh viên: CHỈ GIÁO VIÊN mới được truy cập (CRUD toàn phần).
+/// Sinh viên truy cập sẽ bị chuyển hướng sang /Account/AccessDenied (403).
+/// </summary>
+[Authorize(Roles = "GiaoVien")]
 public class SinhVienController : Controller
 {
     private readonly IApiClientService _apiService;

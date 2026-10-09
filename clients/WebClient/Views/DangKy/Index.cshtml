@@ -3,10 +3,26 @@
     ViewData["Title"] = "Quản lý Đăng Ký Đồ Án";
 }
 
+@{
+    var isGiaoVien = ViewBag.IsGiaoVien as bool? ?? false;
+}
+
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="fw-bold text-primary"><i class="bi bi-card-checklist me-2"></i>Danh Sách Sinh Viên Đăng Ký Đồ Án</h3>
+    <h3 class="fw-bold text-primary">
+        <i class="bi bi-card-checklist me-2"></i>
+        @(isGiaoVien ? "Danh Sách Sinh Viên Đăng Ký Đồ Án" : "Đồ Án Của Tôi")
+    </h3>
     <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i>Đăng Ký Đồ Án Mới</a>
 </div>
+
+@if (!isGiaoVien)
+{
+    <div class="alert alert-warning small shadow-sm">
+        <i class="bi bi-shield-lock-fill me-1"></i>
+        <strong>Chế độ Sinh viên:</strong> bạn chỉ xem được đồ án của chính mình và không có quyền hủy đăng ký.
+        Mọi thay đổi vui lòng liên hệ Giáo viên hướng dẫn.
+    </div>
+}
 
 <div class="card shadow-sm border-0">
     <div class="card-body p-0">
@@ -44,12 +60,20 @@
                                     <span class="badge bg-success">@item.TrangThai</span>
                                 </td>
                                 <td class="text-center">
-                                    <form asp-action="Delete" asp-route-id="@item.MaDK" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn hủy đăng ký #@item.MaDK không?');">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-x-circle"></i> Hủy ĐK
-                                        </button>
-                                    </form>
+                                    @if (isGiaoVien)
+                                    {
+                                        @* Chỉ Giáo viên mới có nút Hủy đăng ký *@
+                                        <form asp-action="Delete" asp-route-id="@item.MaDK" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn hủy đăng ký #@item.MaDK không?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle"></i> Hủy ĐK
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small"><i class="bi bi-lock-fill"></i> Không có quyền</span>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -57,7 +81,9 @@
                     else
                     {
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Chưa có bản ghi đăng ký đồ án nào.</td>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                @(isGiaoVien ? "Chưa có bản ghi đăng ký đồ án nào." : "Bạn chưa đăng ký đồ án nào. Hãy nhấn \"Đăng Ký Đồ Án Mới\".")
+                            </td>
                         </tr>
                     }
                 </tbody>

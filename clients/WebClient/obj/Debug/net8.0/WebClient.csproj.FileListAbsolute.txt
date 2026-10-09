@@ -30,3 +30,16 @@ d:\SOA\QuanLyDoAnSOA\clients\WebClient\obj\Debug\net8.0\refint\WebClient.dll
 d:\SOA\QuanLyDoAnSOA\clients\WebClient\obj\Debug\net8.0\WebClient.pdb
 d:\SOA\QuanLyDoAnSOA\clients\WebClient\obj\Debug\net8.0\WebClient.genruntimeconfig.cache
 d:\SOA\QuanLyDoAnSOA\clients\WebClient\obj\Debug\net8.0\ref\WebClient.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\bin\Debug\net8.0\Microsoft.Extensions.Hosting.Abstractions.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\bin\Debug\net8.0\Microsoft.Extensions.ObjectPool.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\bin\Debug\net8.0\Microsoft.Extensions.WebEncoders.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\bin\Debug\net8.0\System.Security.Cryptography.Xml.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\obj\Debug\net8.0\WebClient.csproj.AssemblyReference.cache
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\obj\Debug\net8.0\WebClient.sourcelink.json
+D:\SOA\QuanLyDoAnSOA\clients\WebClient\obj\Debug\net8.0\WebClient.csproj.Up2Date
