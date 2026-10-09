@@ -1,0 +1,63 @@
+@model WebClient.Models.DangKyCreateViewModel
+@{
+    ViewData["Title"] = "Đăng Ký Đề Tài Mới";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="bi bi-pencil-fill me-2"></i>Đăng Ký Đồ Án Tốt Nghiệp Cho Sinh Viên
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="MaSV" class="form-label fw-bold"></label>
+                        <select asp-for="MaSV" class="form-select">
+                            <option value="">-- Chọn sinh viên --</option>
+                            @foreach (var sv in Model.SinhViens)
+                            {
+                                <option value="@sv.MaSV">@sv.MaSV - @sv.HoTen (@sv.Lop)</option>
+                            }
+                        </select>
+                        <span asp-validation-for="MaSV" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MaDT" class="form-label fw-bold"></label>
+                        <select asp-for="MaDT" class="form-select">
+                            <option value="">-- Chọn đề tài tốt nghiệp --</option>
+                            @foreach (var dt in Model.DeTais)
+                            {
+                                <option value="@dt.MaDT">@dt.MaDT - @dt.TenDT (GVHD: @dt.GiangVienHD - Tối đa: @dt.SoLuongToiDa SV)</option>
+                            }
+                        </select>
+                        <span asp-validation-for="MaDT" class="text-danger small"></span>
+                    </div>
+
+                    <div class="alert alert-info small mt-4">
+                        <i class="bi bi-info-circle-fill me-1"></i>
+                        <strong>Quy tắc hệ thống SOA:</strong>
+                        <ul class="mb-0 ps-3">
+                            <li>Mỗi sinh viên chỉ được phép đăng ký 01 đề tài duy nhất.</li>
+                            <li>Đề tài không thể nhận vượt quá số lượng sinh viên tối đa đã cấu hình.</li>
+                            <li>Dữ liệu sinh viên và đề tài được phối hợp kiểm tra độc lập giữa các Service qua REST API.</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left me-1"></i>Quay lại</a>
+                        <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-1"></i>Xác Nhận Đăng Ký</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

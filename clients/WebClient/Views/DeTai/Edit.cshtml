@@ -1,0 +1,58 @@
+@model WebClient.Models.DeTaiViewModel
+@{
+    ViewData["Title"] = "Cập Nhật Đề Tài";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white fw-bold">
+                <i class="bi bi-pencil-square me-2"></i>Cập Nhật Đề Tài @Model.MaDT
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" asp-route-id="@Model.MaDT" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="MaDT" class="form-label fw-bold"></label>
+                        <input asp-for="MaDT" class="form-control" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TenDT" class="form-label fw-bold"></label>
+                        <input asp-for="TenDT" class="form-control" />
+                        <span asp-validation-for="TenDT" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MoTa" class="form-label fw-bold"></label>
+                        <textarea asp-for="MoTa" rows="3" class="form-control"></textarea>
+                        <span asp-validation-for="MoTa" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="GiangVienHD" class="form-label fw-bold"></label>
+                        <input asp-for="GiangVienHD" class="form-control" />
+                        <span asp-validation-for="GiangVienHD" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SoLuongToiDa" class="form-label fw-bold"></label>
+                        <input asp-for="SoLuongToiDa" type="number" min="1" max="10" class="form-control" />
+                        <span asp-validation-for="SoLuongToiDa" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left me-1"></i>Quay lại</a>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Cập Nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

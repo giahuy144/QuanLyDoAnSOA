@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  sinhvienservice:
+    build:
+      context: .
+      dockerfile: services/SinhVienService/Dockerfile
+    container_name: sinhvienservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - UseInMemoryDatabase=true
+      - Services__DangKyService=http://dangkyservice:8080
+    ports:
+      - "5001:8080"
+    networks:
+      - soa-network
+
+  detaiservice:
+    build:
+      context: .
+      dockerfile: services/DeTaiService/Dockerfile
+    container_name: detaiservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - UseInMemoryDatabase=true
+      - Services__DangKyService=http://dangkyservice:8080
+    ports:
+      - "5002:8080"
+    networks:
+      - soa-network
+
+  dangkyservice:
+    build:
+      context: .
+      dockerfile: services/DangKyService/Dockerfile
+    container_name: dangkyservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - UseInMemoryDatabase=true
+      - Services__SinhVienService=http://sinhvienservice:8080
+      - Services__DeTaiService=http://detaiservice:8080
+    ports:
+      - "5003:8080"
+    depends_on:
+      - sinhvienservice
+      - detaiservice
+    networks:
+      - soa-network
+
+  webclient:
+    build:
+      context: .
+      dockerfile: clients/WebClient/Dockerfile
+    container_name: webclient
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - Services__SinhVienService=http://sinhvienservice:8080
+      - Services__DeTaiService=http://detaiservice:8080
+      - Services__DangKyService=http://dangkyservice:8080
+    ports:
+      - "5000:8080"
+    depends_on:
+      - sinhvienservice
+      - detaiservice
+      - dangkyservice
+    networks:
+      - soa-network
+
+networks:
+  soa-network:
+    driver: bridge

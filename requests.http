@@ -1,0 +1,170 @@
+### ====================================================================
+### CÁC YÊU CẦU KIỂM THỬ HỆ THỐNG SOA QUẢN LÝ ĐỒ ÁN TỐT NGHIỆP
+### Dùng với extension REST Client trên VS Code / Visual Studio
+### ====================================================================
+
+@sinhvien_host = http://localhost:5001
+@detai_host = http://localhost:5002
+@dangky_host = http://localhost:5003
+@client_host = http://localhost:5000
+
+### 1. HEALTH CHECKS
+GET {{sinhvien_host}}/health
+###
+GET {{detai_host}}/health
+###
+GET {{dangky_host}}/health
+
+### ====================================================================
+### 2. SINH VIEN SERVICE (PORT 5001)
+### ====================================================================
+
+### 2.1 Lấy toàn bộ danh sách sinh viên
+GET {{sinhvien_host}}/api/sinhvien
+
+### 2.2 Lấy chi tiết sinh viên SV001
+GET {{sinhvien_host}}/api/sinhvien/SV001
+
+### 2.3 Thêm mới sinh viên hợp lệ (Trả về 201 Created)
+POST {{sinhvien_host}}/api/sinhvien
+Content-Type: application/json
+
+{
+  "maSV": "SV010",
+  "hoTen": "Hoàng Văn Tuấn",
+  "lop": "CNTT3",
+  "email": "tuan.hv@university.edu.vn",
+  "soDienThoai": "0987654321"
+}
+
+### 2.4 Thêm mới trùng mã SV010 (Trả về 409 Conflict)
+POST {{sinhvien_host}}/api/sinhvien
+Content-Type: application/json
+
+{
+  "maSV": "SV010",
+  "hoTen": "Hoàng Văn Tuấn",
+  "lop": "CNTT3",
+  "email": "tuan.hv@university.edu.vn",
+  "soDienThoai": "0987654321"
+}
+
+### 2.5 Cập nhật thông tin sinh viên SV010 (Trả về 204 No Content)
+PUT {{sinhvien_host}}/api/sinhvien/SV010
+Content-Type: application/json
+
+{
+  "hoTen": "Hoàng Văn Tuấn (Updated)",
+  "lop": "CNTT3 - CLC",
+  "email": "tuan.hv_new@university.edu.vn",
+  "soDienThoai": "0987654999"
+}
+
+### 2.6 Xóa sinh viên SV010 chưa đăng ký (Trả về 204 No Content)
+DELETE {{sinhvien_host}}/api/sinhvien/SV010
+
+### 2.7 Cố tình xóa sinh viên SV001 đang có đồ án đăng ký (Trả về 409 Conflict)
+DELETE {{sinhvien_host}}/api/sinhvien/SV001
+
+
+### ====================================================================
+### 3. DE TAI SERVICE (PORT 5002)
+### ====================================================================
+
+### 3.1 Lấy danh sách toàn bộ đề tài
+GET {{detai_host}}/api/detai
+
+### 3.2 Lấy chi tiết đề tài DT01
+GET {{detai_host}}/api/detai/DT01
+
+### 3.3 Thêm mới đề tài hợp lệ (Trả về 201 Created)
+POST {{detai_host}}/api/detai
+Content-Type: application/json
+
+{
+  "maDT": "DT10",
+  "tenDT": "Xây dựng Hệ thống IoT Giám sát Nông nghiệp Thông minh",
+  "moTa": "Ứng dụng ESP32, MQTT và Dashboard ASP.NET Core theo dõi nhiệt độ, độ ẩm.",
+  "giangVienHD": "TS. Đỗ Hoàng Long",
+  "soLuongToiDa": 2
+}
+
+### 3.4 Thêm đề tài trùng mã (Trả về 409 Conflict)
+POST {{detai_host}}/api/detai
+Content-Type: application/json
+
+{
+  "maDT": "DT10",
+  "tenDT": "Xây dựng Hệ thống IoT",
+  "moTa": "Trùng mã",
+  "giangVienHD": "TS. Đỗ Hoàng Long",
+  "soLuongToiDa": 2
+}
+
+### 3.5 Xóa đề tài DT10 chưa có sinh viên đăng ký (Trả về 204 No Content)
+DELETE {{detai_host}}/api/detai/DT10
+
+### 3.6 Cố tình xóa đề tài DT01 đang có sinh viên đăng ký (Trả về 409 Conflict)
+DELETE {{detai_host}}/api/detai/DT01
+
+
+### ====================================================================
+### 4. DANG KY SERVICE (PORT 5003 - GIAO TIẾP LIÊN DỊCH VỤ)
+### ====================================================================
+
+### 4.1 Lấy toàn bộ danh sách đăng ký (Kèm thông tin làm giàu từ 2 service kia)
+GET {{dangky_host}}/api/dangky
+
+### 4.2 Lấy danh sách đăng ký theo mã sinh viên
+GET {{dangky_host}}/api/dangky/sinhvien/SV001
+
+### 4.3 Lấy danh sách đăng ký theo mã đề tài
+GET {{dangky_host}}/api/dangky/detai/DT01
+
+### 4.4 Test nghiệp vụ: SV001 đã đăng ký DT01 rồi, cố tình đăng ký tiếp DT02 (Trả về 409 Conflict)
+POST {{dangky_host}}/api/dangky
+Content-Type: application/json
+
+{
+  "maSV": "SV001",
+  "maDT": "DT02"
+}
+
+### 4.5 Test nghiệp vụ: Sinh viên SV999 không tồn tại (Trả về 404 Not Found)
+POST {{dangky_host}}/api/dangky
+Content-Type: application/json
+
+{
+  "maSV": "SV999",
+  "maDT": "DT01"
+}
+
+### 4.6 Test nghiệp vụ: Đề tài DT999 không tồn tại (Trả về 404 Not Found)
+POST {{dangky_host}}/api/dangky
+Content-Type: application/json
+
+{
+  "maSV": "SV002",
+  "maDT": "DT999"
+}
+
+### 4.7 Đăng ký hợp lệ: SV002 đăng ký DT01 (Hiện tại DT01 có 2/2 sinh viên) (Trả về 201 Created)
+POST {{dangky_host}}/api/dangky
+Content-Type: application/json
+
+{
+  "maSV": "SV002",
+  "maDT": "DT01"
+}
+
+### 4.8 Test nghiệp vụ: SV003 cố đăng ký DT01 đã đầy chỗ (2/2) (Trả về 409 Conflict)
+POST {{dangky_host}}/api/dangky
+Content-Type: application/json
+
+{
+  "maSV": "SV003",
+  "maDT": "DT01"
+}
+
+### 4.9 Hủy bản ghi đăng ký (Trả về 204 No Content)
+DELETE {{dangky_host}}/api/dangky/2

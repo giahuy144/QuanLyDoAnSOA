@@ -1,0 +1,67 @@
+@model IEnumerable<WebClient.Models.DangKyViewModel>
+@{
+    ViewData["Title"] = "Quản lý Đăng Ký Đồ Án";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold text-primary"><i class="bi bi-card-checklist me-2"></i>Danh Sách Sinh Viên Đăng Ký Đồ Án</h3>
+    <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i>Đăng Ký Đồ Án Mới</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 80px;">Mã ĐK</th>
+                        <th>Sinh Viên</th>
+                        <th>Đề Tài Tốt Nghiệp</th>
+                        <th>Giảng Viên Hướng Dẫn</th>
+                        <th>Ngày Đăng Ký</th>
+                        <th class="text-center">Trạng Thái</th>
+                        <th class="text-center" style="width: 120px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@item.MaDK</td>
+                                <td>
+                                    <div class="fw-bold text-primary">@item.MaSV</div>
+                                    <div>@(item.HoTenSinhVien ?? "N/A") <span class="badge bg-light text-dark border">@(item.LopSinhVien ?? "")</span></div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary mb-1">@item.MaDT</span>
+                                    <div class="fw-semibold">@(item.TenDeTai ?? "N/A")</div>
+                                </td>
+                                <td>@(item.GiangVienHD ?? "N/A")</td>
+                                <td>@item.NgayDangKy.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">@item.TrangThai</span>
+                                </td>
+                                <td class="text-center">
+                                    <form asp-action="Delete" asp-route-id="@item.MaDK" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn hủy đăng ký #@item.MaDK không?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-x-circle"></i> Hủy ĐK
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">Chưa có bản ghi đăng ký đồ án nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

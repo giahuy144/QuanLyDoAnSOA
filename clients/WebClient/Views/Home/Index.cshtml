@@ -1,0 +1,58 @@
+@{
+    ViewData["Title"] = "Trang Chủ - Quản Lý Đồ Án Tốt Nghiệp";
+}
+
+<div class="p-5 mb-4 bg-white rounded-3 shadow-sm border">
+    <div class="container-fluid py-3">
+        <h1 class="display-5 fw-bold text-primary">Hệ Thống Quản Lý Đồ Án Tốt Nghiệp</h1>
+        <p class="col-md-10 fs-5 text-muted">
+            Hệ thống được thiết kế theo <strong>Kiến trúc hướng dịch vụ (SOA - Service-Oriented Architecture)</strong> trên nền tảng <strong>ASP.NET Core .NET 8</strong>. Các dịch vụ chạy độc lập, tự chủ về dữ liệu (Database-per-service), giao tiếp hoàn toàn qua giao thức <strong>HTTP/REST (JSON)</strong> và tích hợp chính sách kiên cường <strong>Polly (Retry & Timeout)</strong>.
+        </p>
+        <div class="d-flex gap-2">
+            <a asp-controller="DangKy" asp-action="Create" class="btn btn-primary btn-lg"><i class="bi bi-pencil-square me-1"></i>Đăng Ký Đồ Án</a>
+            <a asp-controller="DangKy" asp-action="Index" class="btn btn-outline-secondary btn-lg"><i class="bi bi-card-checklist me-1"></i>Xem Danh Sách Đăng Ký</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 py-2">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 border-top border-4 border-primary">
+            <div class="card-body">
+                <h5 class="card-title fw-bold text-primary"><i class="bi bi-people-fill me-2"></i>SinhVienService</h5>
+                <p class="card-text text-muted">Cổng hoạt động: <code>http://localhost:5001</code></p>
+                <p class="small text-secondary">Quản lý toàn bộ thông tin hồ sơ sinh viên, lớp, liên hệ. Chịu trách nhiệm kiểm tra toàn vẹn trước khi cho phép xóa hồ sơ.</p>
+                <div class="d-flex gap-2 mt-auto">
+                    <a asp-controller="SinhVien" asp-action="Index" class="btn btn-sm btn-outline-primary">Quản lý Sinh viên</a>
+                    <a href="http://localhost:5001/swagger" target="_blank" class="btn btn-sm btn-light border"><i class="bi bi-box-arrow-up-right me-1"></i>Swagger</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 border-top border-4 border-success">
+            <div class="card-body">
+                <h5 class="card-title fw-bold text-success"><i class="bi bi-journal-bookmark-fill me-2"></i>DeTaiService</h5>
+                <p class="card-text text-muted">Cổng hoạt động: <code>http://localhost:5002</code></p>
+                <p class="small text-secondary">Quản lý kho đề tài tốt nghiệp, giảng viên hướng dẫn và kiểm soát giới hạn số lượng sinh viên tối đa cho từng đề tài.</p>
+                <div class="d-flex gap-2 mt-auto">
+                    <a asp-controller="DeTai" asp-action="Index" class="btn btn-sm btn-outline-success">Quản lý Đề tài</a>
+                    <a href="http://localhost:5002/swagger" target="_blank" class="btn btn-sm btn-light border"><i class="bi bi-box-arrow-up-right me-1"></i>Swagger</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 border-top border-4 border-warning">
+            <div class="card-body">
+                <h5 class="card-title fw-bold text-warning"><i class="bi bi-diagram-3-fill me-2"></i>DangKyService</h5>
+                <p class="card-text text-muted">Cổng hoạt động: <code>http://localhost:5003</code></p>
+                <p class="small text-secondary">Đóng vai trò điều phối nghiệp vụ (SOA Orchestrator), gọi HTTP sang SinhVienService & DeTaiService, tích hợp Polly xử lý lỗi mạng.</p>
+                <div class="d-flex gap-2 mt-auto">
+                    <a asp-controller="DangKy" asp-action="Index" class="btn btn-sm btn-outline-warning text-dark">Quản lý Đăng ký</a>
+                    <a href="http://localhost:5003/swagger" target="_blank" class="btn btn-sm btn-light border"><i class="bi bi-box-arrow-up-right me-1"></i>Swagger</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
